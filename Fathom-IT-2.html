@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fathom Notetaker para Windows Team</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4caf50;
+            --warning: #ff9800;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7ff;
+            color: var(--dark);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+        
+        .presentation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .slide {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+        
+        .slide.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .slide h3 {
+            color: var(--secondary);
+            font-size: 1.5rem;
+            margin: 25px 0 15px;
+        }
+        
+        .slide p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .slide ul, .slide ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .slide li {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .feature-card {
+            background-color: var(--light);
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card h3 {
+            color: var(--primary);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-card h3 i {
+            margin-right: 10px;
+            color: var(--accent);
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+        
+        .step-number {
+            background-color: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-image {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .step-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+        
+        .step-image:hover img {
+            transform: scale(1.03);
+        }
+        
+        .tip-box {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+        }
+        
+        .tip-box h3 {
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+        }
+        
+        .tip-box h3 i {
+            margin-right: 10px;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            position: sticky;
+            bottom: 20px;
+            z-index: 100;
+        }
+        
+        .nav-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-btn:hover {
+            background-color: var(--secondary);
+        }
+        
+        .nav-btn i {
+            margin-right: 8px;
+        }
+        
+        .nav-btn.prev i {
+            margin-right: 8px;
+        }
+        
+        .nav-btn.next i {
+            margin-left: 8px;
+        }
+        
+        .slide-counter {
+            text-align: center;
+            margin: 20px 0;
+            color: var(--secondary);
+            font-weight: 600;
+            position: sticky;
+            bottom: 80px;
+            z-index: 100;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 8px;
+            border-radius: 20px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .integration-item {
+            background-color: var(--light);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .integration-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .integration-item i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .slide h2 {
+                font-size: 1.8rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="header">
+            <h1>Fathom Notetaker para Windows Team</h1>
+            <p>Transforma tus reuniones de equipo con grabación, transcripción y toma de notas impulsadas por IA</p>
+        </div>
+        
+        <div class="slide active" id="slide1">
+            <h2>¿Qué es Fathom Notetaker?</h2>
+            <p>Fathom es una herramienta impulsada por IA que graba, transcribe, resalta y resume tus reuniones para que puedas concentrarte en la conversación en lugar de tomar notas.</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3><i class="fas fa-microphone"></i> Grabación</h3>
+                    <p>Graba automáticamente tus reuniones con audio y video de alta calidad.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i class="fas fa-file-alt"></i> Transcripción</h3>
+                    <p>Proporciona transcripciones precisas en tiempo real de tus reuniones.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i class="fas fa-highlighter"></i> Resaltado</h3>
+                    <p>Te permite marcar momentos importantes durante la reunión.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i class="fas fa-file-contract"></i> Resumen</h3>
+                    <p>Genera resúmenes concisos de tus reuniones automáticamente.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide2">
+            <h2>¿Por qué usar Fathom en tu Windows Team?</h2>
+            <p>Fathom ofrece numerosos beneficios que pueden mejorar la productividad y colaboración dentro de tu entorno de Windows Team:</p>
+            
+            <ul>
+                <li><strong>Mayor Enfoque:</strong> Los miembros del equipo pueden participar activamente en las discusiones sin preocuparse por tomar notas.</li>
+                <li><strong>Registros Precisos:</strong> Elimina el problema de notas de reuniones incompletas o inexactas.</li>
+                <li><strong>Accesibilidad:</strong> Los miembros del equipo que faltaron a la reunión pueden ponerse al día rápidamente con grabaciones y resúmenes.</li>
+                <li><strong>Información Accionable:</strong> La IA resalta decisiones clave y elementos de acción para seguimiento.</li>
+                <li><strong>Ahorro de Tiempo:</strong> Reduce el tiempo dedicado a la documentación de reuniones y comunicaciones de seguimiento.</li>
+            </ul>
+            
+            <div class="tip-box">
+                <h3><i class="fas fa-lightbulb"></i> Consejo para el Equipo</h3>
+                <p>Asigna un "Campeón de Fathom" en tu equipo para ayudar a otros a comenzar y compartir mejores prácticas.</p>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide3">
+            <h2>Instalando Fathom en Windows</h2>
+            <p>Sigue estos pasos para instalar Fathom Notetaker en tu máquina Windows:</p>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Visita el Sitio Web de Fathom</h3>
+                    <p>Ve a <a href="https://fathom.video/" target="_blank" style="color: var(--primary);">fathom.video</a> y haz clic en el botón "Descargar".</p>
+                    <div class="step-image">
+                        <a href="https://example.com/fathom-website.jpg" target="_blank">
+                            <img src="https://picsum.photos/seed/fathom-website/600/300.jpg" alt="Sitio Web de Fathom">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Descarga la Aplicación de Windows</h3>
+                    <p>Selecciona la versión de Windows y descarga el archivo de instalación.</p>
+                    <div class="step-image">
+                        <a href="https://example.com/download-page.jpg" target="_blank">
+                            <img src="https://picsum.photos/seed/download-page/600/300.jpg" alt="Página de Descarga">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Instala la Aplicación</h3>
+                    <p>Ejecuta el instalador descargado y sigue las instrucciones en pantalla para completar la instalación.</p>
+                    <div class="step-image">
+                        <a href="https://example.com/installation-process.jpg" target="_blank">
+                            <img src="https://picsum.photos/seed/installation-process/600/300.jpg" alt="Proceso de Instalación">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Crea una Cuenta</h3>
+                    <p>Abre Fathom y regístrate para una nueva cuenta o inicia sesión con tus credenciales existentes.</p>
+                    <div class="step-image">
+                        <a href="https://example.com/account-setup.jpg" target="_blank">
+                            <img src="https://picsum.photos/seed/account-setup/600/300.jpg" alt="Configuración de Cuenta">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h3>Conecta tu Calendario</h3>
+                    <p>Conecta tu calendario de Outlook o Google para detectar automáticamente próximas reuniones.</p>
+                    <div class="step-image">
+                        <a href="https://example.com/calendar-connection.jpg" target="_blank">
+                            <img src="https://picsum.photos/seed/calendar-connection/600/300.jpg" alt="Conexión de Calendario">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <h3>Programa una Reunión en Teams</h3>
+                    <p>Programa una reunión en Microsoft Teams e invita a Fathom para que la grabe automáticamente.</p>
+                    <div class="step-image">
+                        <a href="https://example.com/programmed-meeting.jpg" target="_blank">
+                            <img src="https://picsum.photos/seed/programmed-meeting/600/300.jpg" alt="Reunión Programada">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">7</div>
+                <div class="step-content">
+                    <h3>Inicia una Reunión Improvisada en Teams</h3>
+                    <p>Inicia una reunión instantánea en Microsoft Teams y añade a Fathom para grabar la conversación.</p>
+                    <div class="step-image">
+                        <a href="https://example.com/impromptu-meeting.jpg" target="_blank">
+                            <img src="https://picsum.photos/seed/impromptu-meeting/600/300.jpg" alt="Reunión Improvisada">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide4">
+            <h2>Usando Fathom Durante las Reuniones</h2>
+            <p>Una vez instalado, Fathom se integra perfectamente con tu flujo de trabajo de reuniones:</p>
+            
+            <h3>Antes de la Reunión</h3>
+            <ul>
+                <li>Fathom detecta automáticamente reuniones de tu calendario conectado</li>
+                <li>Configura ajustes para cada reunión (preferencias de grabación, idioma, etc.)</li>
+                <li>Invita a Fathom a tu reunión si no se añade automáticamente</li>
+            </ul>
+            
+            <h3>Durante la Reunión</h3>
+            <ul>
+                <li>Fathom comienza a grabar automáticamente cuando la reunión inicia</li>
+                <li>Usa el widget de Fathom para resaltar momentos importantes en tiempo real</li>
+                <li>Añade notas privadas que solo tú puedes ver</li>
+                <li>Visualiza la transcripción en vivo mientras la reunión progresa</li>
+            </ul>
+            
+            <h3>Después de la Reunión</h3>
+            <ul>
+                <li>Accede a la grabación completa y transcripción en tu biblioteca de Fathom</li>
+                <li>Revisa los resaltados y resúmenes generados por IA</li>
+                <li>Comparte clips específicos o la grabación completa con miembros del equipo</li>
+                <li>Exporta notas a tus herramientas preferidas (Notion, Slack, etc.)</li>
+            </ul>
+        </div>
+        
+        <div class="slide" id="slide5">
+            <h2>Integración con Herramientas de Windows Team</h2>
+            <p>Fathom se integra perfectamente con herramientas comúnmente usadas en entornos de Windows Team:</p>
+            
+            <div class="integration-grid">
+                <div class="integration-item">
+                    <i class="fab fa-microsoft"></i>
+                    <h3>Microsoft Teams</h3>
+                    <p>Integración nativa para grabación automática</p>
+                </div>
+                <div class="integration-item">
+                    <i class="fab fa-microsoft"></i>
+                    <h3>Outlook</h3>
+                    <p>Sincronización de calendario y detección de reuniones</p>
+                </div>
+                <div class="integration-item">
+                    <i class="fab fa-slack"></i>
+                    <h3>Slack</h3>
+                    <p>Comparte resúmenes y resaltados</p>
+                </div>
+                <div class="integration-item">
+                    <i class="fas fa-briefcase"></i>
+                    <h3>Notion</h3>
+                    <p>Exporta notas y resúmenes</p>
+                </div>
+                <div class="integration-item">
+                    <i class="fab fa-trello"></i>
+                    <h3>Trello</h3>
+                    <p>Crea tarjetas a partir de elementos de acción</p>
+                </div>
+                <div class="integration-item">
+                    <i class="fab fa-hubspot"></i>
+                    <h3>HubSpot</h3>
+                    <p>Registra reuniones y actividades</p>
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <h3><i class="fas fa-plug"></i> Consejo de Integración</h3>
+                <p>Configura el compartir automático de resúmenes de reuniones al canal de Slack de tu equipo para mantener a todos alineados.</p>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide6">
+            <h2>Mejores Prácticas para Equipos</h2>
+            <p>Para maximizar los beneficios de Fathom en tu entorno de Windows Team, sigue estas mejores prácticas:</p>
+            
+            <h3>Establece Directrices del Equipo</h3>
+            <ul>
+                <li>Define cuándo y qué reuniones deben ser grabadas</li>
+                <li>Establece protocolos para compartir grabaciones y notas</li>
+                <li>Crea un formato estandarizado para resúmenes de reuniones</li>
+            </ul>
+            
+            <h3>Optimiza tu Flujo de Trabajo</h3>
+            <ul>
+                <li>Usa la función de resaltado de Fathom para marcar elementos de acción y decisiones</li>
+                <li>Revisa y edita los resúmenes generados por IA para precisión</li>
+                <li>Crea plantillas para tipos de reuniones recurrentes</li>
+            </ul>
+            
+            <h3>Seguridad y Privacidad</h3>
+            <ul>
+                <li>Comprende las políticas de retención de datos de Fathom</li>
+                <li>Ten cuidado al grabar información sensible</li>
+                <li>Gestiona permisos de acceso para grabaciones compartidas</li>
+            </ul>
+            
+            <div class="tip-box">
+                <h3><i class="fas fa-users"></i> Consejo de Colaboración</h3>
+                <p>Usa los espacios de trabajo compartidos de Fathom para colaborar en notas de reuniones y elementos de acción con tu equipo.</p>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide7">
+            <h2>Comenzando con tu Equipo</h2>
+            <p>¿Listo para implementar Fathom en tu Windows Team? Sigue este plan de implementación:</p>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Programa Piloto</h3>
+                    <p>Comienza con un grupo pequeño de miembros del equipo para probar Fathom y recopilar comentarios.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Capacitación del Equipo</h3>
+                    <p>Realiza una sesión de capacitación para demostrar las características y beneficios de Fathom.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Implementación en Todo el Equipo</h3>
+                    <p>Expande gradualmente el uso de Fathom a todo el equipo basado en los comentarios del piloto.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Mejora Continua</h3>
+                    <p>Revisa regularmente el uso y recopila comentarios para optimizar el flujo de trabajo de Fathom de tu equipo.</p>
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <h3><i class="fas fa-chart-line"></i> Métrica de Éxito</h3>
+                <p>Monitorea la reducción en el tiempo dedicado a la documentación de reuniones y comunicaciones de seguimiento después de implementar Fathom.</p>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide8">
+            <h2>Recursos y Soporte</h2>
+            <p>Aquí hay algunos recursos para ayudarte a aprovechar al máximo Fathom Notetaker:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3><i class="fas fa-book"></i> Documentación</h3>
+                    <p>Visita el <a href="https://fathom.video/help" target="_blank" style="color: var(--primary);">Centro de Ayuda de Fathom</a> para guías detalladas y tutoriales.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i class="fas fa-video"></i> Tutoriales en Video</h3>
+                    <p>Mira el <a href="https://www.youtube.com/c/FathomVideo" target="_blank" style="color: var(--primary);">canal de YouTube de Fathom</a> para tutoriales visuales.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i class="fas fa-comments"></i> Comunidad</h3>
+                    <p>Únete a la <a href="https://fathom.video/community" target="_blank" style="color: var(--primary);">Comunidad de Fathom</a> para conectarte con otros usuarios.</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i class="fas fa-headset"></i> Soporte</h3>
+                    <p>Contacta al soporte de Fathom en <a href="mailto:support@fathom.video" style="color: var(--primary);">support@fathom.video</a> para asistencia.</p>
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <h3><i class="fas fa-gift"></i> Prueba Gratuita</h3>
+                <p>Fathom ofrece un plan gratuito con funciones limitadas. Pruébalo antes de comprometerte con un plan de pago.</p>
+            </div>
+        </div>
+        
+        <div class="slide" id="slide9">
+            <h2>Preguntas y Respuestas</h2>
+            <p>Aquí hay algunas preguntas comunes sobre el uso de Fathom Notetaker en un entorno de Windows Team:</p>
+            
+            <h3>¿Fathom es compatible con todas las versiones de Windows?</h3>
+            <p>Fathom es compatible con Windows 10 y Windows 11. Para versiones anteriores, consulta los requisitos del sistema en el sitio web de Fathom.</p>
+            
+            <h3>¿Puedo usar Fathom con Microsoft Teams y Zoom?</h3>
+            <p>Sí, Fathom funciona con múltiples plataformas de videoconferencias incluyendo Microsoft Teams, Zoom, Google Meet y Webex.</p>
+            
+            <h3>¿Qué tan seguros son mis datos de reuniones con Fathom?</h3>
+            <p>Fathom utiliza seguridad de grado empresarial con cifrado en tránsito y en reposo. También cumplen con regulaciones de privacidad como GDPR y CCPA.</p>
+            
+            <h3>¿Puedo personalizar los resúmenes generados por IA?</h3>
+            <p>Sí, puedes editar y personalizar los resúmenes generados por IA para que se adapten mejor a las necesidades de tu equipo.</p>
+            
+            <h3>¿Hay un límite en cuántas reuniones puedo grabar?</h3>
+            <p>El plan gratuito tiene limitaciones en el número de grabaciones y almacenamiento. Los planes de pago ofrecen límites aumentados y funciones adicionales.</p>
+        </div>
+        
+        <div class="slide" id="slide10">
+            <h2>¡Gracias!</h2>
+            <p>¡Gracias por tu atención! Esperamos que esta presentación te haya proporcionado información valiosa sobre cómo usar Fathom Notetaker efectivamente en tu entorno de Windows Team.</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <img src="https://fathom.video/wp-content/uploads/2022/09/fathom-logo-1.png" alt="Logo de Fathom" style="max-width: 200px;">
+            </div>
+            
+            <h3>Puntos Clave:</h3>
+            <ul>
+                <li>Fathom automatiza la grabación, transcripción y toma de notas de reuniones</li>
+                <li>Se integra perfectamente con herramientas de Windows Team como Microsoft Teams y Outlook</li>
+                <li>Seguir las mejores prácticas asegura el máximo beneficio para tu equipo</li>
+                <li>Comienza con un programa piloto y expande gradualmente el uso</li>
+            </ul>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <p style="font-size: 1.2rem; color: var(--primary); font-weight: 600;">¿Preguntas? Contáctanos en team-support@company.com</p>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn prev" onclick="changeSlide(-1)">
+                <i class="fas fa-arrow-left"></i> Anterior
+            </button>
+            
+            <button class="nav-btn next" onclick="changeSlide(1)">
+                Siguiente <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">10</span>
+        </div>
+        
+        <div class="footer">
+            <p>© 2023 Presentación de Windows Team. Esta presentación fue creada para demostrar el uso de Fathom Notetaker en un entorno de equipo.</p>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 10;
+        
+        function showSlide(n) {
+            // Ocultar todas las diapositivas
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            // Mostrar la diapositiva actual
+            const activeSlide = document.getElementById('slide' + n);
+            activeSlide.classList.add('active');
+            
+            // Actualizar contador de diapositivas
+            document.getElementById('current-slide').textContent = n;
+            document.getElementById('total-slides').textContent = totalSlides;
+            
+            // Actualizar botones de navegación
+            document.querySelector('.nav-btn.prev').style.display = n === 1 ? 'none' : 'flex';
+            document.querySelector('.nav-btn.next').style.display = n === totalSlides ? 'none' : 'flex';
+            
+            // Desplazar la página al inicio de la diapositiva activa
+            window.scrollTo({
+                top: activeSlide.offsetTop - 20,
+                behavior: 'smooth'
+            });
+        }
+        
+        function changeSlide(direction) {
+            currentSlide += direction;
+            
+            if (currentSlide < 1) {
+                currentSlide = 1;
+            } else if (currentSlide > totalSlides) {
+                currentSlide = totalSlides;
+            }
+            
+            showSlide(currentSlide);
+        }
+        
+        // Inicializar la presentación
+        document.addEventListener('DOMContentLoaded', function() {
+            showSlide(currentSlide);
+            
+            // Navegación con teclado
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'ArrowLeft') {
+                    changeSlide(-1);
+                } else if (event.key === 'ArrowRight') {
+                    changeSlide(1);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
